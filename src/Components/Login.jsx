@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import "./Login.css"
-import dashboard from "./Dashboard"
-import { useNavigate } from 'react-router-dom';
+// import "./Login.css"
+import { useNavigate, Navigate } from 'react-router-dom';
+import { baseUrl } from './api';
 
 
 const Login = () => {
@@ -11,6 +11,9 @@ const Login = () => {
     username: "",
     password: "",
   });
+  
+  const token = localStorage.getItem('token');
+  // if (token) {return <Navigate to="/dashboard" replace />;}
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +25,7 @@ const Login = () => {
   
   const handleSubmit = async (e) => {
     // const API = `http://localhost:3011/data/login`;
-    const API = `https://sosapi.elloweb.com/data/login`;
+    const API = `${baseUrl}/data/login`;
     e.preventDefault();
 
     try {
@@ -34,13 +37,15 @@ const Login = () => {
         credentials: "include", 
         body: JSON.stringify(loginData)
       });
-      
 
       const data = await response.json();
-
+      // console.log(data.user.token);
       
+
       if (data.success) {
-        const token = data.token; 
+        const token = data.user.token; 
+        // console.log('token : ',token);
+        
         localStorage.setItem("token", token); 
       
         alert("Login success");

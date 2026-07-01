@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from './Navbar'
-import './CreateLead.css'
+// import './CreateLead.css'
+import { baseUrl } from './api';
 
 const Creat_lead = () => {
  
@@ -37,7 +38,7 @@ const Creat_lead = () => {
     const token = localStorage.getItem('token');
     
     // const api = `http://localhost:3011/data/create`;
-    const api = `https://sosapi.elloweb.com/data/create`;
+    const api = `${baseUrl}/data/create`;
     e.preventDefault();
     try {
       const data = new FormData();
@@ -54,7 +55,7 @@ const Creat_lead = () => {
         {
           method:'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
+           token,
           },          
           body:data,
         });

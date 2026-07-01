@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from './Navbar'
-import './CreateLead.css'
+// import './CreateLead.css'
 import { useParams, useNavigate } from 'react-router-dom';
+import { baseUrl } from './api';
 
 
 const update_lead = () => {
@@ -31,11 +32,11 @@ const update_lead = () => {
       try {
         const token=localStorage.getItem('token')
         // const response = await fetch(`http://localhost:3011/data/data/${lead_id}`,{
-        const response = await fetch(`https://sosapi.elloweb.com/data/data/${lead_id}`,{
+        const response = await fetch(`${baseUrl}/data/data/${lead_id}`,{
           method:"GET",
   // credentials: "include",  
           headers:{
-            "Authorization":`Bearer ${token}`
+            token,
           },
         });
         const data = await response.json();
@@ -84,7 +85,7 @@ const update_lead = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // const api = `http://localhost:3011/data/update/${lead_id}`;
-    const api = `https://sosapi.elloweb.com/data/update/${lead_id}`;
+    const api = `${baseUrl}/data/update/${lead_id}`;
     const token = localStorage.getItem('token');
 
     try {
@@ -98,7 +99,7 @@ const update_lead = () => {
         data.append("cv", formData.file);
       }else if (formData.file_path) {
         // const fileResponse = await fetch(`http://localhost:3011/${formData.file_path}`);
-        const fileResponse = await fetch(`https://sosapi.elloweb.com/${formData.file_path}`);
+        const fileResponse = await fetch(`${baseUrl}/${formData.file_path}`);
         const fileBlob = await fileResponse.blob();
         const fileName = formData.file_path.split('/').pop(); // Get the filename
         data.append("cv", fileBlob, fileName);
@@ -112,7 +113,7 @@ const update_lead = () => {
           method: "PUT",
           body: data,
           headers: {
-            "Authorization": `Bearer ${token}`, 
+           token 
           },
         });
       if (!response.ok) {
@@ -157,7 +158,7 @@ const update_lead = () => {
             {formData.existingFilePath ?
               (<a
                 // href={`http://localhost:3011/data/update/${formData.existingFilePath}`}
-                href={`https://sosapi.elloweb.com/${formData.existingFilePath}`}
+                href={`${baseUrl}/${formData.existingFilePath}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

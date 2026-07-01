@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 import Navbar from "./Navbar";
-import "./Dashboard.css";
+// import "./Dashboard.css";
+import { baseUrl } from "./api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,8 +36,14 @@ const Dashboard = () => {
     setEnd_date(e.target.value);
   }
 
+  const token = localStorage.getItem("token");
+  // console.log('token : ', token);
+
+
   const applyFilter = () => {
     const token = localStorage.getItem('token');
+    // console.log('token : ', token);
+
 
     if (!start_date || !end_date) {
       alert("Please select start and end dates");
@@ -44,12 +51,12 @@ const Dashboard = () => {
     }
 
     // const api = `http://localhost:3011/data/export?start_date=${start_date}&end_date=${end_date}`;
-    const api = `https://sosapi.elloweb.com/data/export?start_date=${start_date}&end_date=${end_date}`;
+    const api = `${baseUrl}/data/export?start_date=${start_date}&end_date=${end_date}`;
     fetch(api, {
       method: "GET",
       credentials: "include",
       headers: {
-        Authorization: `Bearer ${token}`,
+        token,
       },
     })
       .then((response) => {
@@ -92,11 +99,11 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem('token');
       // const response = await fetch("http://localhost:3011/data/csvupload", {
-      const response = await fetch("https://sosapi.elloweb.com/data/csvupload", {
+      const response = await fetch(`${baseUrl}/data/csvupload`, {
         method: "POST",
         credentials: "include",
         headers: {
-          Authorization:`Bearer ${token}`
+          token
         },
         body: formData,
       });
@@ -121,20 +128,18 @@ const Dashboard = () => {
     }
   };
 
-
-
-  useEffect(() => {
-    const getLeadData = async () => {
+ const getLeadData = async () => {
       try {
         const token = localStorage.getItem("token");
         
+
         // const response = await fetch("http://localhost:3011/data/get", {   
-        const response = await fetch("https://sosapi.elloweb.com/data/get", {
+        const response = await fetch(`${baseUrl}/data/get`, {
 
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,   // <— you must send the token
+            token,   // <— you must send the token
           }
         });
 
@@ -148,12 +153,15 @@ const Dashboard = () => {
           }
           throw new Error(data.message || "Failed to fetch data");
         }
-
-        setData(data.result); // assuming useState is defined
+        if(data.result){
+        setData(data.result);
+        } 
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+
+  useEffect(() => {
     getLeadData();
   }, []);
 
@@ -203,7 +211,12 @@ const Dashboard = () => {
           )}
         </div>
 
-        <div className={`table-container ${isImportOpen || isExportOpen ? "table-move-down" : ""}`}>
+        <div
+          className={`modal-backdrop ${isImportOpen || isExportOpen ? "open" : ""}`}
+          onClick={closeModals}
+        />
+
+        <div className={"table-container "}>
           <table className="styled-table">
             <thead>
               <tr>
@@ -222,7 +235,7 @@ const Dashboard = () => {
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((item, index) => (
-                  console.log(item.lead_id, "lead id"),
+                  
                   <tr key={index}>
                     <td>{item.lead_id}</td>
                     <td>{item.name}</td>
@@ -235,7 +248,7 @@ const Dashboard = () => {
                     <td>
                       {item.file_path ? (
                         // <a href={`http://localhost:3011/${item.file_path}`} target="_blank" rel="noopener noreferrer" className="cv-link">
-                        <a href={`https://sosapi.elloweb.com/${item.file_path}`} target="_blank" rel="noopener noreferrer" className="cv-link">
+                        <a href={`${baseUrl}/${item.file_path}`} target="_blank" rel="noopener noreferrer" className="cv-link">
                           View CV
                         </a>) : (
                         <span>Upload CV</span>
@@ -265,6 +278,7 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
+
       </div>
     </>
   );

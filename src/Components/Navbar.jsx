@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import "./Navbar.css";
+// import "./Navbar.css";
+import { baseUrl } from "./api";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ const Navbar = () => {
   
 const handleLogout = async () => {
   try {
-    const res = await fetch("https://sosapi.elloweb.com/data/logout", {
+    const res = await fetch(`${baseUrl}/data/logout`, {
       method: "POST",
       credentials: "include", // include cookies
     });
