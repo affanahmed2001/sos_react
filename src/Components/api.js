@@ -1,2 +1,3 @@
-export const baseUrl = "http://localhost:3011"
+export const baseUrl = "https://sosnode-production.up.railway.app"
+// "http://localhost:3011"
 
