@@ -128,42 +128,76 @@ const Dashboard = () => {
     }
   };
 
- const getLeadData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        
+  const getLeadData = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        // const response = await fetch("http://localhost:3011/data/get", {   
-        const response = await fetch(`${baseUrl}/data/get`, {
 
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            token,   // <— you must send the token
-          }
-        });
+      // const response = await fetch("http://localhost:3011/data/get", {   
+      const response = await fetch(`${baseUrl}/data/get`, {
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            alert("Session expired, please log in again.");
-            navigate("/");
-            return;
-          }
-          throw new Error(data.message || "Failed to fetch data");
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          token,   // <— you must send the token
         }
-        if(data.result){
-        setData(data.result);
-        } 
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert("Session expired, please log in again.");
+          navigate("/");
+          return;
+        }
+        throw new Error(data.message || "Failed to fetch data");
       }
-    };
+      if (data.result) {
+        setData(data.result);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   useEffect(() => {
     getLeadData();
   }, []);
+
+  const deleteClick = async (lead_id) => {
+
+    const confirmDelete = window.confirm("Do you want to delete this lead?");
+
+    if (!confirmDelete) {
+      return; // user clicked Cancel — stop here, no API call
+    }
+
+    const token = localStorage.getItem('token');
+    const id = lead_id;
+    try {
+      const res = await fetch(`${baseUrl}/data/delete/${id}`, {
+
+        method: "DELETE",
+        headers: {
+
+          token,   // <— you must send the token
+        }
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !res.success) {
+        alert(result.message || "Failed to delete lead");
+        return;
+      }
+
+      alert("Lead deleted successfully");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Something went wrong while deleting.");
+    }
+  }
 
 
 
@@ -229,13 +263,13 @@ const Dashboard = () => {
                 <th>FBID</th>
                 <th>Created Date</th>
                 <th>CV</th>
-                <th>Edit</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((item, index) => (
-                  
+
                   <tr key={index}>
                     <td>{item.lead_id}</td>
                     <td>{item.name}</td>
@@ -254,7 +288,13 @@ const Dashboard = () => {
                         <span>Upload CV</span>
                       )}
                     </td>
-                    <td><a href={`/update/${item.lead_id}`}>Edit</a></td>
+                    <td>
+                      <div className="action-cell">
+                        <a href={`/update/${item.lead_id}`}>Edit</a>
+                        <span onClick={() => deleteClick(item.lead_id)}>Delete</span>
+                      </div>
+                    </td>
+
                   </tr>
                 ))
               ) : (
